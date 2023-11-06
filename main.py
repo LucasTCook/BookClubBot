@@ -24,7 +24,7 @@ from handlers import *
 # from bot.views.group_buttons import JoinGroupButton
 
 
-load_dotenv()
+# load_dotenv(override=True)
 logger = settings.logging.getLogger("bot")
 
 # Initialize the bot with a prefix
@@ -110,6 +110,8 @@ async def suggest(ctx, *args):
 
         
         book_name = " ".join(args)  # Join all provided words into a single string
+        book_name = book_name.replace("'", "")  
+
 
         if GOOGLE_BOOKS_API_KEY is None:
             await ctx.send("⚠️ Google Books API not configured")
@@ -226,7 +228,7 @@ async def create_winner_channels(selected_suggestion):
             # Create text channels within the specified category
             await home_category.create_text_channel(f"📖{selected_suggestion}-progress")
             await home_category.create_text_channel(f"📣{selected_suggestion}-announcements")
-            await home_category.create_text_channel(f"🚫{selected_suggestion}-spoiler")
+            await home_category.create_text_channel(f"🙈{selected_suggestion}-spoiler")
             await home_category.create_text_channel(f"🆓{selected_suggestion}-spoiler-free")
             
 
@@ -247,13 +249,20 @@ async def lottery(ctx,type="",countdown = 10):
     covers = {}
     descriptions = {}
     authors = {}
+    if type == 'lms':
+        count = -1
+    else:
+        count = countdown
     for title, author, user_id, upvotes, downvotes, keywords, cover, desc in books_votes:
         if (upvotes - downvotes) > 0:
             lottery_pool.extend([title] * (upvotes - downvotes))
             covers[title] = cover
             descriptions[title] = desc
             authors[title] = author
+            if type == 'lms':
+                count += (upvotes - downvotes)
 
+    
     # logger.info("Lottery 2")
 
     embed = discord.Embed()
@@ -268,7 +277,7 @@ async def lottery(ctx,type="",countdown = 10):
 
     # Start the countdown
     countdown_message = await message.edit(content="", embed=embed)
-    for remaining_time in range(countdown, -1, -1):
+    for remaining_time in range(count, -1, -1):
         selected_suggestion = random.choice(lottery_pool)
 
 
@@ -295,7 +304,7 @@ async def lottery(ctx,type="",countdown = 10):
                 lottery_pool.remove(selected_suggestion)
             await asyncio.sleep(1)
 
-# @commands.check(is_owner)
+@commands.check(is_owner)
 @bot.command(name="strawpick", brief="Pick a suggestion tied for first randomly.")
 async def strawpick(ctx, top_placements=3,countdown = 10):
     # logger.info("In strawpick")

@@ -161,3 +161,7 @@ cython_debug/
 
 .vscode/
 bot2.py
+/.env bool
+/.env pbe
+/bot/cmds/mathexample.py
+/database/BookClubAssistant.db

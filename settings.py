@@ -5,7 +5,7 @@ import discord
 from logging.config import dictConfig
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(override=True)
 
 DISCORD_API_SECRET = os.getenv("DISCORD_API_TOKEN")
 FIND_A_GROUP_CHANNEL_ID = int(os.getenv("FIND_A_GROUP_CHANNEL_ID"))
